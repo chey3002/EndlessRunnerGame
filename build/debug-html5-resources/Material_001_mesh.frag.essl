@@ -1,0 +1,45 @@
+#version 100
+#extension GL_EXT_draw_buffers : require
+precision mediump float;
+precision highp int;
+
+varying highp vec3 wnormal;
+
+highp vec2 octahedronWrap(highp vec2 v)
+{
+    return (vec2(1.0) - abs(v.yx)) * vec2((v.x >= 0.0) ? 1.0 : (-1.0), (v.y >= 0.0) ? 1.0 : (-1.0));
+}
+
+highp float packFloat(highp float f1, highp float f2)
+{
+    return floor(f1 * 100.0) + min(f2, 0.9900000095367431640625);
+}
+
+highp float packFloat2(highp float f1, highp float f2)
+{
+    return floor(f1 * 255.0) + min(f2, 0.9900000095367431640625);
+}
+
+void main()
+{
+    highp vec3 n = normalize(wnormal);
+    highp vec3 basecol = vec3(1.0, 0.89159190654754638671875, 0.3549306392669677734375);
+    highp float roughness = 0.5477225780487060546875;
+    highp float metallic = 1.0;
+    highp float occlusion = 1.0;
+    highp float specular = 1.0;
+    n /= vec3((abs(n.x) + abs(n.y)) + abs(n.z));
+    highp vec2 _93;
+    if (n.z >= 0.0)
+    {
+        _93 = n.xy;
+    }
+    else
+    {
+        _93 = octahedronWrap(n.xy);
+    }
+    n = vec3(_93.x, _93.y, n.z);
+    gl_out[0].gl_FragData = vec4(n.xy, packFloat(metallic, roughness), 0.0);
+    gl_out[1].gl_FragData = vec4(basecol, packFloat2(occlusion, specular));
+}
+
